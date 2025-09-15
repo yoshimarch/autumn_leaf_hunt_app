@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>秋の葉っぱ集め</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'メイリオ', sans-serif;
+      background-color: #fff8e1;
+      color: #5d4037;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 15px;
+    }
+    
+    @media (min-width: 600px) {
+      .container {
+        max-width: 800px;
+        padding: 20px;
+      }
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    
+    h1 {
+      color: #e65100;
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+    
+    h2 {
+      color: #f57c00;
+      font-size: 1.3rem;
+      margin: 12px 0;
+    }
+    
+    h3 {
+      color: #e65100;
+      font-size: 1.1rem;
+      margin: 8px 0;
+    }
+    
+    p {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    
+    .bingo-card {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 15px 0;
+    }
+    
+    .bingo-cell {
+      aspect-ratio: 1/1;
+      border: 2px dashed #ff6f00;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #fffde7;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .bingo-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .selected {
+      border: 2px solid #f57f17;
+      box-shadow: 0 0 10px rgba(245, 127, 23, 0.5);
+    }
+    
+    .empty-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      color: #8d6e63;
+    }
+    
+    .filled-cell {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
+    .leaf-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .leaf-note {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 5px;
+      font-size: 12px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .leaf-collection {
+      margin: 15px 0;
+    }
+    
+    .leaf-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .leaf-thumbnail {
+      width: 70px;
+      height: 70px;
+      border: 1px solid #ffa000;
+      border-radius: 5px;
+      overflow: hidden;
+      cursor: grab;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    @media (min-width: 600px) {
+      .leaf-thumbnail {
+        width: 80px;
+        height: 80px;
+      }
+    }
+    
+    .leaf-thumbnail:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .leaf-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .thumbnail-note {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 2px;
+      font-size: 10px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-height: 20px;
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 15px 0;
+      justify-content: center;
+    }
+    
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+    
+    .save-button {
+      background-color: #7cb342;
+      color: white;
+      flex: 1;
+    }
+    
+    .nft-button {
+      background-color: #9e9e9e;
+      color: white;
+      flex: 1;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .nft-button-enabled {
+      opacity: 1;
+      cursor: pointer;
+    }
+    
+    .clear-button {
+      background-color: #ef5350;
+      color: white;
+      flex: 1;
+    }
+    
+    button:hover:not([disabled]):not(.nft-button) {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .nft-button-enabled:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .nft-message {
+      margin: 15px 0;
+      padding: 12px;
+      background-color: #e1f5fe;
+      border-left: 4px solid #29b6f6;
+      border-radius: 4px;
+      animation: fadeIn 0.5s ease-in;
+      font-size: 14px;
+    }
+    
+    .storage-warning {
+      background-color: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 10px 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .data-notice {
+      background-color: #e8f5e9;
+      border-left: 4px solid #4caf50;
+      padding: 10px 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    
+    .save-info {
+      background-color: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 10px 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    
+    .seasonal-info {
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #ffecb3;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    .seasonal-info ul {
+      padding-left: 20px;
+      margin-top: 5px;
+    }
+    
+    .seasonal-info li {
+      margin-bottom: 3px;
+    }
+    
+    .memo-tips {
+      background-color: #f3e5f5;
+      border-left: 4px solid #9c27b0;
+      padding: 10px 15px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    
+    .memo-tips ul {
+      padding-left: 20px;
+      margin-top: 5px;
+    }
+    
+    /* モーダルスタイル */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease-in;
+    }
+    
+    .modal-content {
+      background-color: white;
+      padding: 15px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.3s ease-out;
+    }
+    
+    .modal-content h3 {
+      margin-top: 0;
+      color: #e65100;
+    }
+    
+    .modal-content textarea {
+      width: 100%;
+      height: 80px;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ffa000;
+      border-radius: 5px;
+      resize: none;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    
+    .cancel-button {
+      background-color: #9e9e9e;
+      color: white;
+    }
+    
+    .save-note-button {
+      background-color: #ff9800;
+      color: white;
+    }
+    
+    .leaf-preview {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      border: 1px solid #ffa000;
+    }
+    
+    .leaf-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .char-count {
+      text-align: right;
+      font-size: 12px;
+      color: #757575;
+      margin-top: 5px;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #8d6e63;
+      font-size: 0.8rem;
+    }
+    
+    /* アニメーション */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    /* スマホ対応のための追加スタイル */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      h2 {
+        font-size: 1.2rem;
+      }
+      
+      .bingo-card {
+        gap: 5px;
+      }
+      
+      .empty-cell span {
+        font-size: 12px;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      button {
+        width: 100%;
+        padding: 12px 0;
+      }
+      
+      .leaf-thumbnail {
+        width: 60px;
+        height: 60px;
+      }
+    }
+    
+    /* 長押しコンテキストメニュー防止（スマホでの右クリック相当の操作） */
+    .leaf-thumbnail {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    /* スマホ向けの削除ボタン */
+    .delete-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: #f44336;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .leaf-thumbnail:hover .delete-badge,
+    .leaf-thumbnail:active .delete-badge {
+      opacity: 1;
+    }
+
+    /* 保存中のローディング表示 */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 追加：日付入力スタイル */
+    .date-input {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .date-input input {
+      padding: 5px;
+      border: 1px solid #ffa000;
+      border-radius: 4px;
+      font-family: inherit;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🍁 秋の葉っぱ集め 🍂</h1>
+      <p>葉っぱを9枚集めて、あなただけのビンゴカードを作りましょう！</p>
+    </header>
+    
+    <main>
+      <div class="data-notice">
+        <p>📱 <strong>データ保存についての注意:</strong> このアプリのデータはこのブラウザ内にのみ保存されます。ブラウザを閉じたり別のページに移動しても大丈夫ですが、ブラウザの履歴を消去すると保存データも失われます。作成したカードは「JPEGとして保存」ボタンで画像として保存することをおすすめします。</p>
+      </div>
+
+      <div class="save-info" id="saveInfo" style="display: none;">
+        <p>💾 <strong>保存場所:</strong> 「JPEGとして保存」ボタンを押すと、デバイスの「ダウンロード」フォルダに「秋の葉っぱビンゴ.jpg」として保存されます。保存場所はお使いのブラウザの設定によって異なる場合があります。</p>
+      </div>
+      
+      <div id="storageWarning" class="storage-warning" style="display: none;">
+        <p>⚠️ ブラウザのストレージ容量が制限に近づいています。新しい葉っぱを追加する前に、古い葉っぱを削除するか、カードを保存することをお勧めします。</p>
+      </div>
+      
+      <div class="bingo-card-container">
+        <h2>あなたの葉っぱビンゴカード</h2>
+        <div class="bingo-card" id="bingoCard">
+          <!-- JavaScriptでビンゴカードのセルが生成されます -->
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <button id="saveJpegBtn" class="save-button">JPEGとして保存 💾</button>
+        <button id="saveNftBtn" class="nft-button" disabled>NFTとして保存（未実装）🌟</button>
+        <button id="clearBtn" class="clear-button">リセット 🗑️</button>
+      </div>
+      
+      <div id="nftMessage" class="nft-message" style="display:none;"></div>
+      
+      <div id="leafCollection" class="leaf-collection" style="display:none;">
+        <h2>あなたの葉っぱコレクション</h2>
+        <p>葉っぱをタップでメモを編集、ドラッグでビンゴカードに配置、❌マークで削除できます</p>
+        <div class="leaf-gallery" id="leafGallery">
+          <!-- JavaScriptで葉っぱのサムネイルが生成されます -->
+        </div>
+      </div>
+      
+      <div class="seasonal-info">
+        <h3>🍂 秋の葉っぱを見つけよう！ 🍂</h3>
+        <p>空のマスをタップして葉っぱの写真をアップロードし、ビンゴカードを完成させましょう。各葉っぱにメモを追加して、発見した場所や感想を記録できます。</p>
+        <ul>
+          <li>イチョウ - 黄色の扇形の葉</li>
+          <li>モミジ - 赤色の手のひら型の葉</li>
+          <li>カエデ - 星形の葉</li>
+          <li>クヌギ - 波打った縁の葉</li>
+          <li>ケヤキ - 細長い楕円形の葉</li>
+        </ul>
+      </div>
+    </main>
+    
+    <footer>
+      <p>© 2025 秋の葉っぱ集め - すべての権利は秋の妖精に帰属します 🍂</p>
+    </footer>
+    
+    <!-- 非表示のファイル入力 -->
+    <input type="file" id="fileInput" style="display: none;" accept="image/*" multiple>
+    
+    <!-- 非表示のキャンバス（画像処理用） -->
+    <canvas id="canvas" style="display: none;"></canvas>
+  </div>
+  
+  <!-- メモ入力モーダル -->
+  <div id="noteModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h3>葉っぱのメモを追加</h3>
+      <div class="leaf-preview" id="leafPreview">
+        <!-- 選択した葉っぱのプレビュー画像 -->
+      </div>
+      
+      <div class="memo-tips">
+        <p><strong>メモのヒント:</strong> 以下の情報を記録しておくと、後で思い出す助けになります</p>
+        <ul>
+          <li>発見した場所（公園名、山の名前など）</li>
+          <li>樹木の種類（わかる場合）</li>
+          <li>葉っぱの特徴や色</li>
+          <li>見つけたときの思い出</li>
+        </ul>
+      </div>
+      
+      <textarea id="noteInput" placeholder="この葉っぱについてのメモを入力してください（発見場所、植物名、感想など）" maxlength="50"></textarea>
+      <div class="date-input">
+        <label for="dateInput">発見日: </label>
+        <input type="date" id="dateInput">
+      </div>
+      <div class="char-count"><span id="charCount">0</span>/50文字</div>
+      <div class="modal-buttons">
+        <button id="cancelNoteBtn" class="cancel-button">キャンセル</button>
+        <button id="saveNoteBtn" class="save-note-button">保存</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- NFT機能有効化確認モーダル（将来的な拡張用） -->
+  <div id="nftEnableModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h3>NFT機能を有効化</h3>
+      <p>あなたの秋の葉っぱコレクションをNFTとして保存する機能を有効化しますか？</p>
+      <p>この機能を使うと、ブロックチェーン上にあなたのユニークなコレクションを記録し、デジタル資産として所有することができます。</p>
+      
+      <div class="modal-buttons">
+        <button id="cancelNftEnableBtn" class="cancel-button">キャンセル</button>
+        <button id="confirmNftEnableBtn" class="save-note-button">有効化する</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // シンプルなキャンバスを画像に変換する関数
+    // ※注: html2canvasの完全な代替ではありませんが、シンプルな要素の画像化に使用可能
+    function captureElement(element) {
+      return new Promise((resolve, reject) => {
+        try {
+          // 対象要素のサイズを取得
+          const rect = element.getBoundingClientRect();
+          const width = rect.width;
+          const height = rect.height;
+          
+          // キャンバスを作成
+          const canvas = document.createElement('canvas');
+          canvas.width = width * 2; // 高解像度のため2倍
+          canvas.height = height * 2;
+          
+          // キャンバスのコンテキストを取得
+          const ctx = canvas.getContext('2d');
+          ctx.scale(2, 2); // 高解像度のため2倍にスケール
+          
+          // 背景色を設定
+          ctx.fillStyle = '#fff8e1';
+          ctx.fillRect(0, 0, width, height);
+          
+          // HTMLを画像としてレンダリング
+          const images = [];
+          const cells = element.querySelectorAll('.bingo-cell');
+          
+          // 各セルの位置を計算してレンダリング
+          let loadedImages = 0;
+          const totalCells = cells.length;
+          
+          cells.forEach((cell, index) => {
+            const cellRect = cell.getBoundingClientRect();
+            const x = cellRect.left - rect.left;
+            const y = cellRect.top - rect.top;
+            const w = cellRect.width;
+            const h = cellRect.height;
+            
+            // セルの背景とボーダーを描画
+            ctx.fillStyle = '#fffde7';
+            ctx.strokeStyle = '#ff6f00';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(x, y, w, h, 8);
+            ctx.fill();
+            ctx.stroke();
+            
+            // セル内に画像があれば描画
+            const img = cell.querySelector('img');
+            if (img) {
+              const tempImg = new Image();
+              tempImg.crossOrigin = 'Anonymous';
+              tempImg.onload = () => {
+                ctx.drawImage(tempImg, x, y, w, h);
+                
+                // メモがあれば描画
+                const noteDiv = cell.querySelector('.leaf-note');
+                if (noteDiv) {
+                  // メモの背景を描画
+                  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                  ctx.fillRect(x, y + h - 20, w, 20);
+                  
+                  // メモのテキストを描画
+                  ctx.fillStyle = 'white';
+                  ctx.font = '12px sans-serif';
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'middle';
+                  ctx.fillText(noteDiv.textContent, x + w/2, y + h - 10, w - 4);
+                }
+                
+                loadedImages++;
+                if (loadedImages === totalCells) {
+                  resolve(canvas);
+                }
+              };
+              
+              tempImg.onerror = () => {
+                // 画像の読み込みに失敗した場合も続行
+                console.error('画像の読み込みに失敗:', img.src);
+                loadedImages++;
+                if (loadedImages === totalCells) {
+                  resolve(canvas);
+                }
+              };
+              
+              tempImg.src = img.src;
+            } else {
+              // 画像がない場合は空のセルとして描画
+              ctx.fillStyle = '#8d6e63';
+              ctx.font = '12px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText('ここをタップして葉っぱを追加', x + w/2, y + h/2, w - 10);
+              
+              loadedImages++;
+              if (loadedImages === totalCells) {
+                resolve(canvas);
+              }
+            }
+          });
+          
+          // 画像がない場合（すべてのセルが空）
+          if (totalCells === 0 || document.querySelectorAll('.bingo-cell img').length === 0) {
+            resolve(canvas);
+          }
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // 状態管理
+    const state = {
+      bingoCard: Array(9).fill(null),
+      uploadedLeaves: [],
+      leafNotes: {},
+      leafDates: {},
+      selectedCell: null,
+      selectedLeafIndex: null,
+      isTouchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+      nftEnabled: false, // NFT機能が有効かどうか
+      isFirstSave: true // 初回保存かどうか
+    };
+    
+    // DOM要素
+    const elements = {
+      bingoCard: document.getElementById('bingoCard'),
+      fileInput: document.getElementById('fileInput'),
+      saveJpegBtn: document.getElementById('saveJpegBtn'),
+      saveNftBtn: document.getElementById('saveNftBtn'),
+      clearBtn: document.getElementById('clearBtn'),
+      leafGallery: document.getElementById('leafGallery'),
+      leafCollection: document.getElementById('leafCollection'),
+      noteModal: document.getElementById('noteModal'),
+      noteInput: document.getElementById('noteInput'),
+      dateInput: document.getElementById('dateInput'),
+      leafPreview: document.getElementById('leafPreview'),
+      cancelNoteBtn: document.getElementById('cancelNoteBtn'),
+      saveNoteBtn: document.getElementById('saveNoteBtn'),
+      nftMessage: document.getElementById('nftMessage'),
+      charCount: document.getElementById('charCount'),
+      canvas: document.getElementById('canvas'),
+      storageWarning: document.getElementById('storageWarning'),
+      saveInfo: document.getElementById('saveInfo'),
+      nftEnableModal: document.getElementById('nftEnableModal'),
+      cancelNftEnableBtn: document.getElementById('cancelNftEnableBtn'),
+      confirmNftEnableBtn: document.getElementById('confirmNftEnableBtn')
+    };
+    
+    // IndexedDBを使用してデータを保存・読み込み
+    const DB_NAME = 'AutumnLeafHuntDB_v2'; // データベース名を変更して互換性問題を回避
+    const DB_VERSION = 1;
+    const LEAF_STORE = 'leaves';
+    const CARD_STORE = 'bingoCard';
+    const NOTES_STORE = 'notes';
+    const DATES_STORE = 'dates';
+    const CONFIG_STORE = 'config';
+    
+    // 以前のデータベースからデータを移行
+    async function migrateFromOldDatabase() {
+      try {
+        // 以前のデータベースが存在するかチェック
+        const oldDbRequest = indexedDB.open('AutumnLeafHuntDB', 1);
+        
+        oldDbRequest.onsuccess = async (event) => {
+          const oldDb = event.target.result;
+          
+          // 以前のデータベースのストアが存在するかチェック
+          if (oldDb.objectStoreNames.contains(LEAF_STORE) && 
+              oldDb.objectStoreNames.contains(CARD_STORE) && 
+              oldDb.objectStoreNames.contains(NOTES_STORE)) {
+            
+            try {
+              // 葉っぱデータを取得
+              const leaves = await getAllFromStore(oldDb, LEAF_STORE);
+              
+              // ビンゴカードデータを取得
+              const cardData = await getFromStore(oldDb, CARD_STORE, 'current');
+              
+              // メモデータを取得
+              const notes = await getAllFromStore(oldDb, NOTES_STORE);
+              
+              // 新しいデータベースに保存
+              if (leaves.length > 0) {
+                const newDb = await initDatabase();
+                
+                // 葉っぱデータを保存
+                for (const leaf of leaves) {
+                  await addToStore(newDb, LEAF_STORE, leaf);
+                }
+                
+                // ビンゴカードデータを保存
+                if (cardData) {
+                  await putToStore(newDb, CARD_STORE, cardData);
+                }
+                
+                // メモデータを保存
+                for (const note of notes) {
+                  await putToStore(newDb, NOTES_STORE, note);
+                }
+                
+                // 移行成功メッセージ
+                console.log('データの移行に成功しました');
+                showMessage('以前のデータを新しいバージョンに移行しました');
+                setTimeout(() => {
+                  elements.nftMessage.style.display = 'none';
+                }, 3000);
+              }
+            } catch (error) {
+              console.error('データ移行エラー:', error);
+            }
+          }
+          
+          // 古いデータベースを閉じる
+          oldDb.close();
+        };
+        
+        oldDbRequest.onerror = (event) => {
+          console.log('以前のデータベースは存在しません');
+        };
+      } catch (error) {
+        console.error('データ移行チェックエラー:', error);
+      }
+    }
+    
+    // ストアからすべてのデータを取得する関数
+    function getAllFromStore(db, storeName) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.getAll();
+        
+        request.onsuccess = () => {
+          resolve(request.result);
+        };
+        
+        request.onerror = (event) => {
+          reject(`${storeName}からのデータ取得エラー: ${event.target.error}`);
+        };
+      });
+    }
+    
+    // ストアから特定のキーのデータを取得する関数
+    function getFromStore(db, storeName, key) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.get(key);
+        
+        request.onsuccess = () => {
+          resolve(request.result);
+        };
+        
+        request.onerror = (event) => {
+          reject(`${storeName}からのデータ取得エラー: ${event.target.error}`);
+        };
+      });
+    }
+    
+    // ストアにデータを追加する関数
+    function addToStore(db, storeName, data) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.add(data);
+        
+        request.onsuccess = () => {
+          resolve(request.result);
+        };
+        
+        request.onerror = (event) => {
+          reject(`${storeName}へのデータ追加エラー: ${event.target.error}`);
+        };
+      });
+    }
+    
+    // ストアにデータを更新する関数
+    function putToStore(db, storeName, data) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.put(data);
+        
+        request.onsuccess = () => {
+          resolve(request.result);
+        };
+        
+        request.onerror = (event) => {
+          reject(`${storeName}へのデータ更新エラー: ${event.target.error}`);
+        };
+      });
+    }
+    
+    // IndexedDBを初期化
+    function initDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        request.onerror = (event) => {
+          console.error('IndexedDBエラー:', event.target.error);
+          reject('データベースを開けませんでした。');
+        };
+        
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          
+          // 葉っぱ画像ストア
+          if (!db.objectStoreNames.contains(LEAF_STORE)) {
+            db.createObjectStore(LEAF_STORE, { keyPath: 'id', autoIncrement: true });
+          }
+          
+          // ビンゴカードストア
+          if (!db.objectStoreNames.contains(CARD_STORE)) {
+            db.createObjectStore(CARD_STORE, { keyPath: 'id' });
+          }
+          
+          // メモストア
+          if (!db.objectStoreNames.contains(NOTES_STORE)) {
+            db.createObjectStore(NOTES_STORE, { keyPath: 'id' });
+          }
+          
+          // 日付ストア
+          if (!db.objectStoreNames.contains(DATES_STORE)) {
+            db.createObjectStore(DATES_STORE, { keyPath: 'id' });
+          }
+          
+          // 設定ストア
+          if (!db.objectStoreNames.contains(CONFIG_STORE)) {
+            db.createObjectStore(CONFIG_STORE, { keyPath: 'id' });
+          }
+        };
+        
+        request.onsuccess = (event) => {
+          const db = event.target.result;
+          resolve(db);
+        };
+      });
+    }
+    
+    // データベースに葉っぱを保存
+    async function saveLeafToDb(imageDataURL) {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([LEAF_STORE], 'readwrite');
+          const store = transaction.objectStore(LEAF_STORE);
+          
+          const leaf = { imageData: imageDataURL };
+          const request = store.add(leaf);
+          
+          request.onsuccess = (event) => {
+            resolve(event.target.result); // 保存した葉っぱのID
+          };
+          
+          request.onerror = (event) => {
+            console.error('葉っぱの保存エラー:', event.target.error);
+            reject('葉っぱの保存に失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        showMessage('データの保存に失敗しました。ブラウザのストレージ容量を確認してください。');
+        throw error;
+      }
+    }
+    
+    // データベースからすべての葉っぱを読み込み
+    async function loadLeavesFromDb() {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([LEAF_STORE], 'readonly');
+          const store = transaction.objectStore(LEAF_STORE);
+          
+          const request = store.getAll();
+          
+          request.onsuccess = (event) => {
+            const leaves = event.target.result.map(leaf => ({
+              id: leaf.id,
+              imageData: leaf.imageData
+            }));
+            resolve(leaves);
+          };
+          
+          request.onerror = (event) => {
+            console.error('葉っぱの読み込みエラー:', event.target.error);
+            reject('葉っぱの読み込みに失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        showMessage('データの読み込みに失敗しました。');
+        return [];
+      }
+    }
+    
+    // ビンゴカードを保存
+    async function saveBingoCardToDb() {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([CARD_STORE], 'readwrite');
+          const store = transaction.objectStore(CARD_STORE);
+          
+          // ビンゴカードのIDと葉っぱIDの対応を保存
+          const cardData = {
+            id: 'current',
+            cells: state.bingoCard.map(cellData => {
+              if (!cellData) return null;
+              const leafIndex = state.uploadedLeaves.findIndex(leaf => leaf.imageData === cellData);
+              return leafIndex !== -1 ? state.uploadedLeaves[leafIndex].id : null;
+            })
+          };
+          
+          const request = store.put(cardData);
+          
+          request.onsuccess = () => {
+            resolve();
+          };
+          
+          request.onerror = (event) => {
+            console.error('ビンゴカードの保存エラー:', event.target.error);
+            reject('ビンゴカードの保存に失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        showMessage('データの保存に失敗しました。');
+      }
+    }
+    
+    // ビンゴカードを読み込み
+    async function loadBingoCardFromDb() {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([CARD_STORE], 'readonly');
+          const store = transaction.objectStore(CARD_STORE);
+          
+          const request = store.get('current');
+          
+          request.onsuccess = (event) => {
+            const cardData = event.target.result;
+            if (cardData && cardData.cells) {
+              resolve(cardData.cells);
+            } else {
+              resolve(Array(9).fill(null));
+            }
+          };
+          
+          request.onerror = (event) => {
+            console.error('ビンゴカードの読み込みエラー:', event.target.error);
+            reject('ビンゴカードの読み込みに失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        showMessage('データの読み込みに失敗しました。');
+        return Array(9).fill(null);
+      }
+    }
+    
+    // メモを保存
+    async function saveNoteToDb(leafId, note) {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([NOTES_STORE], 'readwrite');
+          const store = transaction.objectStore(NOTES_STORE);
+          
+          const noteData = { id: leafId, text: note };
+          const request = store.put(noteData);
+          
+          request.onsuccess = () => {
+            resolve();
+          };
+          
+          request.onerror = (event) => {
+            console.error('メモの保存エラー:', event.target.error);
+            reject('メモの保存に失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        showMessage('データの保存に失敗しました。');
+      }
+    }
+    
+    // 日付を保存
+    async function saveDateToDb(leafId, date) {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([DATES_STORE], 'readwrite');
+          const store = transaction.objectStore(DATES_STORE);
+          
+          const dateData = { id: leafId, date: date };
+          const request = store.put(dateData);
+          
+          request.onsuccess = () => {
+            resolve();
+          };
+          
+          request.onerror = (event) => {
+            console.error('日付の保存エラー:', event.target.error);
+            reject('日付の保存に失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        showMessage('データの保存に失敗しました。');
+      }
+    }
+    
+    // 設定を保存
+    async function saveConfigToDb(key, value) {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([CONFIG_STORE], 'readwrite');
+          const store = transaction.objectStore(CONFIG_STORE);
+          
+          const config = { id: key, value: value };
+          const request = store.put(config);
+          
+          request.onsuccess = () => {
+            resolve();
+          };
+          
+          request.onerror = (event) => {
+            console.error('設定の保存エラー:', event.target.error);
+            reject('設定の保存に失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+      }
+    }
+    
+    // 設定を読み込み
+    async function loadConfigFromDb(key) {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([CONFIG_STORE], 'readonly');
+          const store = transaction.objectStore(CONFIG_STORE);
+          
+          const request = store.get(key);
+          
+          request.onsuccess = (event) => {
+            const config = event.target.result;
+            if (config) {
+              resolve(config.value);
+            } else {
+              resolve(null);
+            }
+          };
+          
+          request.onerror = (event) => {
+            console.error('設定の読み込みエラー:', event.target.error);
+            reject('設定の読み込みに失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        return null;
+      }
+    }
+    
+    // すべてのメモを読み込み
+    async function loadNotesFromDb() {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([NOTES_STORE], 'readonly');
+          const store = transaction.objectStore(NOTES_STORE);
+          
+          const request = store.getAll();
+          
+          request.onsuccess = (event) => {
+            const notes = {};
+            event.target.result.forEach(note => {
+              notes[note.id] = note.text;
+            });
+            resolve(notes);
+          };
+          
+          request.onerror = (event) => {
+            console.error('メモの読み込みエラー:', event.target.error);
+            reject('メモの読み込みに失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        showMessage('データの読み込みに失敗しました。');
+        return {};
+      }
+    }
+    
+    // すべての日付を読み込み
+    async function loadDatesFromDb() {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([DATES_STORE], 'readonly');
+          const store = transaction.objectStore(DATES_STORE);
+          
+          const request = store.getAll();
+          
+          request.onsuccess = (event) => {
+            const dates = {};
+            event.target.result.forEach(date => {
+              dates[date.id] = date.date;
+            });
+            resolve(dates);
+          };
+          
+          request.onerror = (event) => {
+            console.error('日付の読み込みエラー:', event.target.error);
+            reject('日付の読み込みに失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        showMessage('データの読み込みに失敗しました。');
+        return {};
+      }
+    }
+    
+    // データベースから特定の葉っぱを削除
+    async function deleteLeafFromDb(leafId) {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([LEAF_STORE, NOTES_STORE, DATES_STORE], 'readwrite');
+          const leafStore = transaction.objectStore(LEAF_STORE);
+          const noteStore = transaction.objectStore(NOTES_STORE);
+          const dateStore = transaction.objectStore(DATES_STORE);
+          
+          // 葉っぱを削除
+          const leafRequest = leafStore.delete(leafId);
+          
+          leafRequest.onsuccess = () => {
+            // 関連するメモも削除
+            const noteRequest = noteStore.delete(leafId);
+            
+            noteRequest.onsuccess = () => {
+              // 関連する日付も削除
+              const dateRequest = dateStore.delete(leafId);
+              
+              dateRequest.onsuccess = () => {
+                resolve();
+              };
+              
+              dateRequest.onerror = (event) => {
+                console.error('日付の削除エラー:', event.target.error);
+                // 日付の削除に失敗しても処理を続行
+                resolve();
+              };
+            };
+            
+            noteRequest.onerror = (event) => {
+              console.error('メモの削除エラー:', event.target.error);
+              // メモの削除に失敗しても処理を続行
+              resolve();
+            };
+          };
+          
+          leafRequest.onerror = (event) => {
+            console.error('葉っぱの削除エラー:', event.target.error);
+            reject('葉っぱの削除に失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        showMessage('データの削除に失敗しました。');
+      }
+    }
+    
+    // データベースをすべてクリア
+    async function clearDatabase() {
+      try {
+        const db = await initDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([LEAF_STORE, CARD_STORE, NOTES_STORE, DATES_STORE], 'readwrite');
+          const leafStore = transaction.objectStore(LEAF_STORE);
+          const cardStore = transaction.objectStore(CARD_STORE);
+          const noteStore = transaction.objectStore(NOTES_STORE);
+          const dateStore = transaction.objectStore(DATES_STORE);
+          
+          // すべてのストアをクリア
+          const leafRequest = leafStore.clear();
+          const cardRequest = cardStore.clear();
+          const noteRequest = noteStore.clear();
+          const dateRequest = dateStore.clear();
+          
+          let completedStores = 0;
+          const checkComplete = () => {
+            completedStores++;
+            if (completedStores === 4) {
+              resolve();
+            }
+          };
+          
+          leafRequest.onsuccess = checkComplete;
+          cardRequest.onsuccess = checkComplete;
+          noteRequest.onsuccess = checkComplete;
+          dateRequest.onsuccess = checkComplete;
+          
+          leafRequest.onerror = (event) => {
+            console.error('葉っぱストアのクリアエラー:', event.target.error);
+            reject('データの削除に失敗しました。');
+          };
+          
+          transaction.oncomplete = () => {
+            db.close();
+          };
+        });
+      } catch (error) {
+        console.error('データベースエラー:', error);
+        showMessage('データの削除に失敗しました。');
+      }
+    }
+    
+    // アプリケーションの状態をすべて読み込み
+    async function loadAppState() {
+      try {
+        // データ移行のチェック
+        await migrateFromOldDatabase();
+        
+        // 葉っぱデータを読み込み
+        const leaves = await loadLeavesFromDb();
+        state.uploadedLeaves = leaves;
+        
+        // ビンゴカードを読み込み
+        const cardCells = await loadBingoCardFromDb();
+        
+        // ビンゴカードのセルを設定
+        state.bingoCard = Array(9).fill(null);
+        cardCells.forEach((leafId, index) => {
+          if (leafId !== null) {
+            const leaf = state.uploadedLeaves.find(l => l.id === leafId);
+            if (leaf) {
+              state.bingoCard[index] = leaf.imageData;
+            }
+          }
+        });
+        
+        // メモを読み込み
+        state.leafNotes = await loadNotesFromDb();
+        
+        // 日付を読み込み
+        state.leafDates = await loadDatesFromDb();
+        
+        // NFT機能の有効化状態を読み込み
+        const nftEnabled = await loadConfigFromDb('nftEnabled');
+        if (nftEnabled !== null) {
+          state.nftEnabled = nftEnabled;
+          if (nftEnabled) {
+            enableNftButton();
+          }
+        }
+        
+        // 初回保存フラグを読み込み
+        const isFirstSave = await loadConfigFromDb('isFirstSave');
+        if (isFirstSave !== null) {
+          state.isFirstSave = isFirstSave;
+        }
+        
+        // UIを更新
+        renderBingoCard();
+        renderLeafCollection();
+      } catch (error) {
+        console.error('アプリの状態読み込みエラー:', error);
+        showMessage('データの読み込みに失敗しました。新しいデータベースで始めます。');
+      }
+    }
+    
+    // ビンゴカードをレンダリング
+    function renderBingoCard() {
+      elements.bingoCard.innerHTML = '';
+      
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'bingo-cell';
+        if (state.selectedCell === i) {
+          cell.classList.add('selected');
+        }
+        
+        if (state.bingoCard[i]) {
+          // セルに葉っぱがある場合
+          const filledCell = document.createElement('div');
+          filledCell.className = 'filled-cell';
+          
+          const img = document.createElement('img');
+          img.src = state.bingoCard[i];
+          img.className = 'leaf-image';
+          img.alt = `葉っぱ ${i + 1}`;
+          
+          filledCell.appendChild(img);
+          
+          // ビンゴカード上のセルに対応する葉っぱのインデックスを探す
+          const leaf = state.uploadedLeaves.find(leaf => leaf.imageData === state.bingoCard[i]);
+          if (leaf && state.leafNotes[leaf.id]) {
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'leaf-note';
+            noteDiv.textContent = state.leafNotes[leaf.id];
+            filledCell.appendChild(noteDiv);
+          }
+          
+          cell.appendChild(filledCell);
+          
+          // 既に画像がある場合はクリックでメモを編集
+          cell.addEventListener('click', () => {
+            const leaf = state.uploadedLeaves.find(leaf => leaf.imageData === state.bingoCard[i]);
+            if (leaf) {
+              openNoteModal(leaf.id);
+            }
+          });
+        } else {
+          // 空のセル
+          const emptyCell = document.createElement('div');
+          emptyCell.className = 'empty-cell';
+          emptyCell.innerHTML = '<span>ここをタップして葉っぱを追加</span>';
+          cell.appendChild(emptyCell);
+          
+          // 空のセルをクリックしたとき、ファイル選択ダイアログを表示
+          cell.addEventListener('click', () => {
+            state.selectedCell = i;
+            elements.fileInput.click();
+          });
+        }
+        
+        // ドラッグ＆ドロップの処理
+        cell.addEventListener('dragover', (e) => {
+          e.preventDefault();
+        });
+        
+        cell.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const leafId = e.dataTransfer.getData('leafId');
+          if (leafId) {
+            const leaf = state.uploadedLeaves.find(l => l.id === parseInt(leafId));
+            if (leaf) {
+              state.bingoCard[i] = leaf.imageData;
+              renderBingoCard();
+              saveBingoCardToDb();
+            }
+          }
+        });
+        
+        elements.bingoCard.appendChild(cell);
+      }
+    }
+    
+    // 葉っぱコレクションをレンダリング
+    function renderLeafCollection() {
+      if (state.uploadedLeaves.length === 0) {
+        elements.leafCollection.style.display = 'none';
+        return;
+      }
+      
+      elements.leafCollection.style.display = 'block';
+      elements.leafGallery.innerHTML = '';
+      
+      state.uploadedLeaves.forEach((leaf) => {
+        const thumbnail = document.createElement('div');
+        thumbnail.className = 'leaf-thumbnail';
+        thumbnail.draggable = true;
+        
+        thumbnail.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('leafId', leaf.id);
+        });
+        
+        thumbnail.addEventListener('click', () => {
+          openNoteModal(leaf.id);
+        });
+        
+        // 削除ボタン（スマホ対応）
+        const deleteBtn = document.createElement('div');
+        deleteBtn.className = 'delete-badge';
+        deleteBtn.textContent = '❌';
+        deleteBtn.title = '削除';
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // 親要素のクリックイベントを防止
+          if (confirm('この葉っぱを削除しますか？')) {
+            deleteLeaf(leaf.id);
+          }
+        });
+        thumbnail.appendChild(deleteBtn);
+        
+        // 右クリックで削除メニュー（PC用）
+        thumbnail.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          if (confirm('この葉っぱを削除しますか？')) {
+            deleteLeaf(leaf.id);
+          }
+        });
+        
+        const img = document.createElement('img');
+        img.src = leaf.imageData;
+        img.alt = `葉っぱ ${leaf.id}`;
+        
+        thumbnail.appendChild(img);
+        
+        // メモまたは日付があれば表示
+        let noteText = '';
+        if (state.leafNotes[leaf.id]) {
+          noteText = state.leafNotes[leaf.id];
+        }
+        if (state.leafDates[leaf.id]) {
+          const date = new Date(state.leafDates[leaf.id]);
+          const dateStr = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+          if (noteText) {
+            noteText = dateStr + ' - ' + noteText;
+          } else {
+            noteText = dateStr;
+          }
+        }
+        
+        if (noteText) {
+          const noteDiv = document.createElement('div');
+          noteDiv.className = 'thumbnail-note';
+          noteDiv.textContent = noteText;
+          noteDiv.title = noteText;
+          thumbnail.appendChild(noteDiv);
+        }
+        
+        elements.leafGallery.appendChild(thumbnail);
+      });
+    }
+    
+    // 葉っぱを削除
+    async function deleteLeaf(leafId) {
+      try {
+        // データベースから削除
+        await deleteLeafFromDb(leafId);
+        
+        // ビンゴカードから削除
+        const leafImageData = state.uploadedLeaves.find(l => l.id === leafId)?.imageData;
+        if (leafImageData) {
+          for (let i = 0; i < state.bingoCard.length; i++) {
+            if (state.bingoCard[i] === leafImageData) {
+              state.bingoCard[i] = null;
+            }
+          }
+        }
+        
+        // 状態から削除
+        state.uploadedLeaves = state.uploadedLeaves.filter(l => l.id !== leafId);
+        delete state.leafNotes[leafId];
+        delete state.leafDates[leafId];
+        
+        // UIを更新
+        renderBingoCard();
+        renderLeafCollection();
+        
+        // ビンゴカードの状態を保存
+        await saveBingoCardToDb();
+        
+        showMessage('葉っぱを削除しました');
+        setTimeout(() => {
+          elements.nftMessage.style.display = 'none';
+        }, 2000);
+      } catch (error) {
+        console.error('葉っぱの削除エラー:', error);
+        showMessage('葉っぱの削除に失敗しました。');
+      }
+    }
+    
+    // 画像のサイズを縮小（データ量削減のため）
+    function resizeImage(dataURL, maxWidth, maxHeight, quality = 0.7) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = function() {
+          let width = img.width;
+          let height = img.height;
+          
+          // アスペクト比を維持しながらリサイズ
+          if (width > maxWidth) {
+            height = Math.round(height * (maxWidth / width));
+            width = maxWidth;
+          }
+          
+          if (height > maxHeight) {
+            width = Math.round(width * (maxHeight / height));
+            height = maxHeight;
+          }
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // 圧縮した画像データURLを返す
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        
+        img.src = dataURL;
+      });
+    }
+    
+    // ファイルアップロード処理
+    async function handleFileUpload(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+      
+      // ストレージ容量のチェック
+      checkStorageUsage();
+      
+      for (const file of Array.from(files)) {
+        try {
+          // FileReaderで画像を読み込み
+          const imageDataURL = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = (e) => reject(e);
+            reader.readAsDataURL(file);
+          });
+          
+          // 画像のリサイズ（データ量削減のため）
+          const resizedImageData = await resizeImage(imageDataURL, 800, 800, 0.7);
+          
+          // データベースに保存
+          const leafId = await saveLeafToDb(resizedImageData);
+          
+          // 状態に追加
+          state.uploadedLeaves.push({
+            id: leafId,
+            imageData: resizedImageData
+          });
+          
+          // 選択中のセルがある場合は、そのセルに葉っぱを配置
+          if (state.selectedCell !== null) {
+            state.bingoCard[state.selectedCell] = resizedImageData;
+            await saveBingoCardToDb();
+            
+            // メモ入力モーダルを表示
+            openNoteModal(leafId);
+            
+            // セル選択を解除
+            state.selectedCell = null;
+          }
+          
+          // UIを更新
+          renderBingoCard();
+          renderLeafCollection();
+        } catch (error) {
+          console.error('ファイル処理エラー:', error);
+          showMessage('画像の処理に失敗しました。もう一度お試しください。');
+        }
+      }
+      
+      // ファイル入力をリセット（同じファイルを再度選択できるように）
+      event.target.value = '';
+    }
+    
+    // ストレージ使用量のチェック
+    function checkStorageUsage() {
+      // IndexedDB容量の推定は難しいため、
+      // アップロードされた葉っぱの数で判断
+      if (state.uploadedLeaves.length >= 15) {
+        elements.storageWarning.style.display = 'block';
+      } else {
+        elements.storageWarning.style.display = 'none';
+      }
+    }
+    
+    // メモモーダルを開く
+    function openNoteModal(leafId) {
+      state.selectedLeafIndex = leafId;
+      elements.noteInput.value = state.leafNotes[leafId] || '';
+      
+      // 日付があれば設定
+      if (state.leafDates[leafId]) {
+        elements.dateInput.value = state.leafDates[leafId];
+      } else {
+        // なければ今日の日付を設定
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        elements.dateInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+      
+      updateCharCount();
+      
+      // 葉っぱのプレビュー表示
+      elements.leafPreview.innerHTML = '';
+      const leaf = state.uploadedLeaves.find(l => l.id === leafId);
+      if (leaf) {
+        const previewImg = document.createElement('img');
+        previewImg.src = leaf.imageData;
+        previewImg.alt = '葉っぱのプレビュー';
+        elements.leafPreview.appendChild(previewImg);
+      }
+      
+      elements.noteModal.style.display = 'flex';
+      
+      // モバイルでフォーカス
+      if (state.isTouchDevice) {
+        setTimeout(() => {
+          elements.noteInput.focus();
+        }, 300);
+      }
+    }
+    
+    // メモモーダルを閉じる
+    function closeNoteModal() {
+      elements.noteModal.style.display = 'none';
+      state.selectedLeafIndex = null;
+    }
+    
+    // メモを保存
+    async function saveNote() {
+      if (state.selectedLeafIndex !== null) {
+        const note = elements.noteInput.value.trim();
+        const date = elements.dateInput.value;
+        
+        // メモをデータベースに保存
+        await saveNoteToDb(state.selectedLeafIndex, note);
+        
+        // 日付をデータベースに保存
+        await saveDateToDb(state.selectedLeafIndex, date);
+        
+        // 状態を更新
+        state.leafNotes[state.selectedLeafIndex] = note;
+        state.leafDates[state.selectedLeafIndex] = date;
+        
+        // モーダルを閉じてUIを更新
+        closeNoteModal();
+        renderBingoCard();
+        renderLeafCollection();
+      }
+    }
+    
+    // JPEGとして保存
+    async function saveAsJpeg() {
+      try {
+        // ローディングメッセージ表示
+        showMessage('<div class="loading-spinner"></div> ビンゴカードを保存中...');
+        
+        // 初回保存の場合は保存情報を表示
+        if (state.isFirstSave) {
+          elements.saveInfo.style.display = 'block';
+          state.isFirstSave = false;
+          saveConfigToDb('isFirstSave', false);
+        }
+        
+
+
+
+        // 画像キャプチャを試行
+        setTimeout(async () => {
+          try {
+            // カスタム関数でビンゴカードをキャプチャ
+            const canvas = await captureElement(elements.bingoCard);
+            
+            // ここから修正・追加部分 //
+            // 余白を追加した新しいキャンバスを作成
+            const paddedCanvas = document.createElement('canvas');
+            const padding = 50; // 上下左右の余白サイズ（ピクセル）
+            paddedCanvas.width = canvas.width + (padding * 2);
+            paddedCanvas.height = canvas.height + (padding * 2);
+            
+            // 新しいキャンバスのコンテキストを取得
+            const ctx = paddedCanvas.getContext('2d');
+            
+            // 背景色を設定（元のアプリの背景色と同じ）
+            ctx.fillStyle = '#fff8e1';
+            ctx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
+            
+            // 元のキャンバスを余白を空けて中央に描画
+            ctx.drawImage(canvas, padding, padding);
+            // ここまで修正・追加部分 //
+            
+            // 画像をダウンロード
+            const link = document.createElement('a');
+            link.download = '秋の葉っぱビンゴ.jpg';
+            link.href = paddedCanvas.toDataURL('image/jpeg', 0.9); // ここを修正: canvas → paddedCanvas
+            link.click();
+            
+            showMessage('ビンゴカードを保存しました！ ダウンロードフォルダをご確認ください。');
+            setTimeout(() => {
+              elements.nftMessage.style.display = 'none';
+            }, 3000);
+          } catch (error) {
+            console.error('画像キャプチャエラー:', error);
+            showMessage('保存中にエラーが発生しました。もう一度お試しください。');
+          }
+        }, 500);
+
+      } catch (error) {
+        console.error('保存エラー:', error);
+        showMessage('保存中にエラーが発生しました。もう一度お試しください。');
+      }
+    }
+    
+    // NFT機能を有効化
+    function enableNftButton() {
+      elements.saveNftBtn.classList.add('nft-button-enabled');
+      elements.saveNftBtn.textContent = 'NFTとして保存 🌟';
+      elements.saveNftBtn.removeAttribute('disabled');
+      state.nftEnabled = true;
+      saveConfigToDb('nftEnabled', true);
+    }
+    
+    // NFT有効化モーダルを表示
+    function showNftEnableModal() {
+      elements.nftEnableModal.style.display = 'flex';
+    }
+    
+    // NFT有効化モーダルを閉じる
+    function closeNftEnableModal() {
+      elements.nftEnableModal.style.display = 'none';
+    }
+    
+    // NFTとして保存（モック）
+    function saveAsNFT() {
+      if (!state.nftEnabled) {
+        showNftEnableModal();
+        return;
+      }
+      
+      showMessage('<div class="loading-spinner"></div> NFTの作成をリクエストしました！ブロックチェーンに記録中...');
+      
+      setTimeout(() => {
+        showMessage('おめでとう！あなたの「秋の葉っぱコレクション」NFTが作成されました。');
+        
+        setTimeout(() => {
+          elements.nftMessage.style.display = 'none';
+        }, 5000);
+      }, 2000);
+    }
+    
+    // データをクリア
+    async function clearData() {
+      if (confirm('本当にすべてのデータをリセットしますか？この操作は元に戻せません。')) {
+        try {
+          // データベースをクリア
+          await clearDatabase();
+          
+          // 状態をリセット
+          state.bingoCard = Array(9).fill(null);
+          state.uploadedLeaves = [];
+          state.leafNotes = {};
+          state.leafDates = {};
+          state.selectedCell = null;
+          
+          // UIを更新
+          renderBingoCard();
+          renderLeafCollection();
+          elements.storageWarning.style.display = 'none';
+          
+          showMessage('すべてのデータをリセットしました。');
+          setTimeout(() => {
+            elements.nftMessage.style.display = 'none';
+          }, 3000);
+        } catch (error) {
+          console.error('データのリセットエラー:', error);
+          showMessage('データのリセットに失敗しました。');
+        }
+      }
+    }
+    
+    // メッセージを表示
+    function showMessage(message) {
+      elements.nftMessage.innerHTML = message;
+      elements.nftMessage.style.display = 'block';
+    }
+    
+    // 文字数カウントの更新
+    function updateCharCount() {
+      const count = elements.noteInput.value.length;
+      elements.charCount.textContent = count;
+    }
+    
+    // イベントリスナーの設定
+    function setupEventListeners() {
+      elements.fileInput.addEventListener('change', handleFileUpload);
+      elements.saveJpegBtn.addEventListener('click', saveAsJpeg);
+      elements.saveNftBtn.addEventListener('click', saveAsNFT);
+      elements.clearBtn.addEventListener('click', clearData);
+      
+      elements.cancelNoteBtn.addEventListener('click', closeNoteModal);
+      elements.saveNoteBtn.addEventListener('click', saveNote);
+      
+      elements.noteInput.addEventListener('input', updateCharCount);
+      
+      // NFT有効化モーダルのボタン
+      elements.cancelNftEnableBtn.addEventListener('click', closeNftEnableModal);
+      elements.confirmNftEnableBtn.addEventListener('click', () => {
+        enableNftButton();
+        closeNftEnableModal();
+        saveAsNFT();
+      });
+      
+      // モーダル外クリックでも閉じる
+      elements.noteModal.addEventListener('click', (e) => {
+        if (e.target === elements.noteModal) {
+          closeNoteModal();
+        }
+      });
+      
+      elements.nftEnableModal.addEventListener('click', (e) => {
+        if (e.target === elements.nftEnableModal) {
+          closeNftEnableModal();
+        }
+      });
+      
+      // タッチデバイスの長押し検出（削除ボタン表示用）
+      if (state.isTouchDevice) {
+        document.addEventListener('touchstart', (e) => {
+          if (e.target.closest('.leaf-thumbnail')) {
+            const thumbnail = e.target.closest('.leaf-thumbnail');
+            const deleteBtn = thumbnail.querySelector('.delete-badge');
+            if (deleteBtn) {
+              deleteBtn.style.opacity = '1';
+              setTimeout(() => {
+                deleteBtn.style.opacity = '0';
+              }, 2000);
+            }
+          }
+        });
+      }
+    }
+    
+    // ブラウザ対応チェック
+    function checkBrowserSupport() {
+      // IndexedDBのサポートチェック
+      if (!window.indexedDB) {
+        alert('お使いのブラウザはIndexedDBをサポートしていません。データの保存ができない可能性があります。');
+        return false;
+      }
+      
+      // モバイルブラウザかどうかの判定
+      if (state.isTouchDevice) {
+        // モバイル用の調整（もしあれば）
+        document.documentElement.classList.add('touch-device');
+      }
+      
+      return true;
+    }
+    
+    // アプリの初期化
+    async function initApp() {
+      try {
+        // ブラウザ対応チェック
+        checkBrowserSupport();
+        
+        // データの読み込み
+        await loadAppState();
+        
+        // イベントリスナーの設定
+        setupEventListeners();
+        
+        // ストレージ使用量のチェック
+        checkStorageUsage();
+        
+        // 現在の日付を設定
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        elements.dateInput.value = `${yyyy}-${mm}-${dd}`;
+      } catch (error) {
+        console.error('アプリの初期化エラー:', error);
+        showMessage('アプリの起動中にエラーが発生しました。ページを再読み込みしてください。');
+      }
+    }
+    
+    // アプリ起動
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
